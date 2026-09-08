@@ -1,0 +1,134 @@
+import java.util.ArrayList;
+
+class Business {
+    // 1. Private fields for proper access control
+    private String name;
+    private String owner;
+    private double funds;
+    
+    // 6. Static field to track total businesses created
+    private static int totalBusinesses = 0;
+    
+    // 7. Constants
+    public static final double TAX_RATE = 0.1;
+
+    // 2 & 5. Overloaded Constructors with constructor chaining using 'this'
+    public Business(String name) {
+        this(name, "Unknown", 0.0); // Chains to the 3-parameter constructor
+    }
+
+    public Business(String name, double startingFunds) {
+        this(name, "Unknown", startingFunds); // Chains to the 3-parameter constructor
+    }
+
+    // 4. Full constructor with parameters
+    public Business(String name, String owner, double startingFunds) {
+        this.name = name;
+        this.owner = owner;
+        this.funds = startingFunds;
+        totalBusinesses++; // Increments the static counter whenever a business is instantiated
+    }
+
+    // 8. Composition: Managing a collection of nested Employee objects
+    private ArrayList<Employee> employees = new ArrayList<>();
+
+    // Method to hire employees
+    public void hireEmployee(String name, String role, double salary) {
+        Employee newEmployee = new Employee(name, role, salary);
+        employees.add(newEmployee);
+        System.out.println(name + " has been hired as a " + role + " at " + this.name + "!");
+    }
+
+    // Method to manage finances: pay employee salaries
+    public void paySalaries() {
+        System.out.println("\n--- Processing Payroll for " + this.name + " ---");
+        for (Employee emp : employees) {
+            if (this.funds >= emp.getSalary()) {
+                this.funds -= emp.getSalary();
+                System.out.printf("Paid %s (%s) their salary of $%.2f. Remaining Funds: $%.2f%n", 
+                                  emp.getName(), emp.getRole(), emp.getSalary(), this.funds);
+            } else {
+                System.out.println("Error: Insufficient funds to pay salary to " + emp.getName());
+            }
+        }
+    }
+
+    // Method to manage finances: apply tax deductions
+    public void payTaxes() {
+        double taxAmount = this.funds * TAX_RATE;
+        this.funds -= taxAmount;
+        System.out.printf("Tax of 10%% applied to %s. Deducted: $%.2f. New Balance: $%.2f%n", 
+                          this.name, taxAmount, this.funds);
+    }
+
+    // Getters and Setters for proper access control
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getOwner() { return owner; }
+    public void setOwner(String owner) { this.owner = owner; }
+
+    public double getFunds() { return funds; }
+    public void setFunds(double funds) { this.funds = funds; }
+
+    public static int getTotalBusinesses() { return totalBusinesses; }
+
+
+    // 8. Nested Inner Class to represent an Employee
+    class Employee {
+        private String name;
+        private String role;
+        private double salary;
+
+        // Constructor for initializing employee instances
+        public Employee(String name, String role, double salary) {
+            this.name = name;
+            this.role = role;
+            this.salary = salary;
+        }
+
+        // Getters and Setters for employee fields
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
+
+        public double getSalary() { return salary; }
+        public void setSalary(double salary) { this.salary = salary; }
+    }
+}
+
+
+// Main Game Driver Class
+public class BloxburgGame {
+    public static void main(String[] args) {
+        System.out.println("=== Welcome to Bloxburg Business Simulator ===\n");
+
+        // Instantiate multiple businesses using overloaded constructors
+        Business pizzaPlace = new Business("Pizza Palace", "Alex", 5000.0);
+        Business burgerShack = new Business("Burger Shack", 2500.0);
+        Business boutique = new Business("Star Clothes");
+
+        // Display current total tracking state
+        System.out.println("Total businesses registered in simulator: " + Business.getTotalBusinesses() + "\n");
+
+        // Set missing information via setters
+        burgerShack.setOwner("Bella");
+        boutique.setOwner("Charlie");
+        boutique.setFunds(1500.0);
+
+        // Hire employees across businesses
+        pizzaPlace.hireEmployee("John", "Chef", 15.00);
+        pizzaPlace.hireEmployee("Jane", "Delivery Driver", 12.50);
+        
+        burgerShack.hireEmployee("Bob", "Cashier", 11.00);
+
+        // Simulate financial cycles: Salaries & Taxes
+        pizzaPlace.paySalaries();
+        pizzaPlace.payTaxes();
+
+        burgerShack.paySalaries();
+        burgerShack.payTaxes();
+    }
+}
